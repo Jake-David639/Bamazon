@@ -23,6 +23,26 @@ connection.connect((err) => {
     showManagerUI();
 });
 
+displayInventory = () => {
+    // selects all data from products table in MySQL database
+    connection.query("SELECT * FROM products", (err, res) => {
+        if (err) throw err;
+        // render table in the console using the db query response
+        console.table(res);
+        // prompt the user for the desired product
+        getUserInput(res);
+    });
+}
+
+// chech user input for exit command "L"
+checkExitSelect = input => {
+    if (input.toLowerCase() === "l") {
+        // display goodbye message and terminate node process
+        console.log("Exiting product selection, please come see us again!");
+        process.exit(0);
+    }
+}
+
 showManagerUI = () => {
     // use inquirer to display the list of commands the mgmt can perform
     inquirer
