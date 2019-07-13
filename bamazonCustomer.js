@@ -12,13 +12,11 @@ var connection = mysql.createConnection({
     password: null,
     database: process.env.DB_DATA
 });
+
 // create the connection to the database and display the invertory table 
-connection.connect((err) => {
+connection.connect(err => {
     // throw error if encountered
-    if (err) {
-        throw err;
-        return;
-    }
+    if (err) throw err;
     // function that displayes the inventory table
     displayInventory();
 });
@@ -45,12 +43,11 @@ getUserInput = inventory => {
                 message: "Enter the ID number of the product you would like to purchase or press 'L' to leave the purchase menu.",
             }
         ])
-        .then((input) => {
+        .then(input => {
+            console.log(input.selection);
             //validate input
-            if (input > 0 || input.toLowerCase() === 'l') {
-                // check for exit condition
-                checkExitSelect(input.choice);
-                var selectionID = parseInt(input.choice);
+            if (input.selection > 0) {
+                var selectionID = parseInt(input.selection);
                 var product = checkInventory(selectionID, inventory);
                 // if the entered ID exists in the table, prompt the user for the desired quantity
                 if (product) {
@@ -62,8 +59,11 @@ getUserInput = inventory => {
                     console.log("\nThe provided product ID is not in our system, please check your selection and try again.");
                     displayInventory();
                 }
-            }
-            else {
+            } else if (input.selection.toLowerCase() === 'l') {
+                // check for exit condition
+                checkExitSelect(input.selection);
+                
+            } else {
                 // inform user input is invalid and display inventory table again
                 console.log("\nThe entered product ID or command is not valid, please try again.");
                 displayInventory();
@@ -72,7 +72,7 @@ getUserInput = inventory => {
 }
 
 // chech user input for exit command "L"
-checkExitSelect = (input) => {
+checkExitSelect = input => {
     if (input.toLowerCase() === "l") {
         // display goodbye message and terminate node process
         console.log("Exiting product selection, please come see us again!");
@@ -81,7 +81,7 @@ checkExitSelect = (input) => {
 }
 
 // prompt the user for the desired quantity of the selected product
-getSelectionQuantity = (product) => {
+getSelectionQuantity = product => {
     inquirer
         .prompt([
             {
@@ -90,12 +90,11 @@ getSelectionQuantity = (product) => {
                 message: "Please enter the desired quantity of the product selected or press 'L' to leave the purchase menu.",
             }
         ])
-        .then((input) => {
+        .then(input => {
+            console.log(input.quantity);
             // validate input
-            if (input > 0 || input.toLowerCase() === 'l'){
-                // check if user input was the exit command 'L'
-                checkExitSelect(input.quantity);
-                var quantity = parseInt(input.quantity);
+            if (input.quantity > 0){
+                const quantity = parseInt(input.quantity);
                 // check if sufficient stock is present of the selected item to fulfill the user request
                 if (quantity > product.stock_quantity) {
                     console.log("\nWe do not have enough of this item in stock to fulfill your request, apologies.");
@@ -105,8 +104,10 @@ getSelectionQuantity = (product) => {
                     // Otherwise run pocessTransaction, give it the product information and desired quantity to purchase
                     pocessTransaction(product, quantity);
                 }
-            }
-            else {
+            } else if (input.quantity.toLowerCase() === 'l'){
+                // check if user input was the exit command 'L'
+                checkExitSelect(input.quantity);
+            } else {
                 // if input is invalid, run getSelectionQuantity again.
                 console.log('The entered quantity is invalid, please try again.');
                 getSelectionQuantity(product);
