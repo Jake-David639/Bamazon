@@ -28,7 +28,7 @@ displayInventory = () => {
     // selects all data from products table in MySQL database
     connection.query("SELECT * FROM products", (err, res) => {
         if (err) throw err;
-        // render table in the console using the db query response
+        // render table in the console using the response to the db query
         console.table(res);
         // prompt the user for the desired product
         getUserInput(res);
